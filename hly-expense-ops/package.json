@@ -1,0 +1,26 @@
+{
+  "name": "@azhena/hly-expense-ops",
+  "version": "0.1.0",
+  "description": "Feishu-doc-style skill wrapper for HLY expense operations",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "hly-expense-ops": "index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "undici": "^7.13.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.5"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "check": "node index.js --help",
+    "build": "node scripts/build-bundle.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0"
+  }
+}

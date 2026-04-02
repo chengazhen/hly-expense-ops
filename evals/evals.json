@@ -1,0 +1,23 @@
+{
+  "skill_name": "hly-expense-ops",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我查一笔报销详情，业务编号 BX20250401001。如果失败就用缓存结果也行。",
+      "expected_output": "Uses the detail action with businessCode, returns normalized detail and metadata showing live or cache.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "列出 2025-01-01 到 2025-01-31 最近修改的报销单，状态 1001 和 1002。",
+      "expected_output": "Uses reports action with statusList and lastModify range; returns summary + raw.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我需要通过接口创建员工档案，部门 D001，姓名 Alice Zhang，员工号 EMP001，邮箱 alice@example.com。",
+      "expected_output": "Uses employee-create action with the required fields; returns raw and employeeID.",
+      "files": []
+    }
+  ]
+}

@@ -1,109 +1,139 @@
 # HLY Expense Ops
 
-High-level CLI and skill wrapper for HuiLianYi (HLY) expense operations. This package sits on top of the HLY MCP runtime and provides a stable JSON output for common read and write actions.
+汇联易费用报销的 **Skill 库**。提供稳定的输入/输出契约、默认规则与兜底策略，便于被 Agent 或自动化系统直接调用。
 
-## Features
+## 功能特性
 
-- Query expense report detail (live-first with cache fallback)
-- Query expense reports v2
-- Create expense reports
-- Audit pass / reject
-- Query tenant companies
-- Create employees (v2)
-- Query departments by date range
-- Normalize raw detail payloads
+- **单据查询** — 查询单条审批单详情（支持缓存）
+- **单据列表** — 批量查询审批单（支持状态、时间范围筛选）
+- **创建单据** — 创建新的费用报销单
+- **审批操作** — 审批通过 / 驳回单据
+- **公司管理** — 查询租户下的公司列表
+- **员工管理** — 创建员工
+- **部门查询** — 按时间范围查询部门
 
-## Requirements
+## 输入契约（Input Contract）
 
-- Node.js `^20.0.0` or `^22.0.0`
-- Environment variables:
-  - `HLY_BASE_URL`
-  - `HLY_APP_ID`
-  - `HLY_APP_SECRET`
+通用规则：
+- `payload` 必须是 JSON 对象。
+- `detail` 需要 `businessCode`。
+- `reports` 默认自动补 `statusList: [1003]`（待审核）。
+- `audit-pass` / `audit-reject` 必须提供 `businessCode`，并且 **二选一**：
+`companyOID` 或 `companyCode`。
 
-Optional:
-- `HLY_TOKEN_PATH`
-- `HLY_EXPENSE_DETAIL_PATH`
-- `HLY_EXPENSE_CREATE_PATH`
-- `HLY_EXPENSE_REPORT_V2_PATH`
-- `HLY_EXPENSE_AUDIT_PASS_PATH`
-- `HLY_EXPENSE_AUDIT_REJECT_PATH`
-- `HLY_COMPANY_BY_TENANT_PATH`
-- `HLY_EMPLOYEE_CREATE_V2_PATH`
-- `HLY_DEPARTMENT_SELECT_PATH`
-- `HLY_TIMEOUT_MS`
-- `HLY_RETRY_COUNT`
-- `HLY_CACHE_TTL_SECONDS`
-- `HLY_EXPENSE_DETAIL_CACHE_PATH`
-- `HLY_HTTP_DEBUG`
+### companyOID 自动回填逻辑
 
-## Install
+当 `audit-pass` / `audit-reject` 未提供 `companyOID`，但提供了 `companyCode` 时：
+- 优先读缓存 `data/company-cache.json`（可用 `HLY_COMPANY_CACHE_PATH` 覆盖）。
+- 缓存未命中则拉取公司列表并刷新缓存，再次匹配。
+- 仍匹配不到将报错。
 
-```bash
-npm install
+缓存时效由 `HLY_CACHE_TTL_SECONDS` 控制。
+
+## 输入示例（JSON Payload）
+
+单据详情：
+```json
+{
+  "businessCode": "ER51184982"
+}
 ```
 
-## Usage
-
-```bash
-# Show help
-node index.js --help
-
-# Expense detail
-node index.js --action detail --business-code BX20250401001
-
-# Expense reports v2
-node index.js --action reports --payload '{"statusList":[1001],"lastModifyStartDate":"2025-01-01 00:00:00","lastModifyEndDate":"2025-01-31 23:59:59"}'
-
-# Create expense report
-node index.js --action create --payload '{"employeeId":"E001","formCode":"FORM01"}'
-
-# Audit pass
-node index.js --action audit-pass --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","approvalTxt":"approved","operator":"system"}'
-
-# Audit reject
-node index.js --action audit-reject --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","approvalTxt":"missing receipt","operator":"system"}'
-
-# Normalize a raw detail object
-node index.js --action normalize-detail --payload '{}'
+查询单据列表（默认待审核）：
+```json
+{
+  "page": 0,
+  "size": 20
+}
 ```
 
-## Action Map
-
-- `detail`: query one expense report detail (live-first, cache fallback)
-- `reports`: query expense reports v2
-- `create`: create an expense report
-- `audit-pass`: approve an expense report
-- `audit-reject`: reject an expense report
-- `companies`: query tenant companies
-- `employee-create`: create employee v2
-- `departments`: select departments by date range
-- `normalize-detail`: normalize a raw detail payload
-
-## Behavioral Boundaries
-
-- Read-only: `detail`, `reports`, `companies`, `departments`, `normalize-detail`
-- Write operations: `create`, `audit-pass`, `audit-reject`, `employee-create`
-  - These mutate remote state. Double-check payloads before running.
-
-## Payload Examples
-
-See `references/action-payloads.md` for ready-to-use JSON payloads.
-
-## Build
-
-```bash
-node scripts/build-bundle.mjs
+审批通过（companyOID 显式传入）：
+```json
+{
+  "businessCode": "ER51184982",
+  "companyOID": "your-company-oid",
+  "approvalTxt": "approved",
+  "operator": "your_operator_id"
+}
 ```
 
-Outputs a self-contained runtime in `hly-expense-ops/` that includes source and references.
-
-## Tests
-
-```bash
-node --test
+审批驳回（companyCode 自动回填 companyOID）：
+```json
+{
+  "businessCode": "ER51184982",
+  "companyCode": "your-company-code",
+  "approvalTxt": "missing receipt",
+  "operator": "your_operator_id"
+}
 ```
 
-## Eval Prompts
+## Action 列表
 
-Skill eval prompts live at `evals/evals.json`.
+| Action | 说明 |
+|--------|------|
+| `detail` | 查询单条审批单详情 |
+| `reports` | 批量查询审批单 |
+| `create` | 创建审批单 |
+| `audit-pass` | 审批通过 |
+| `audit-reject` | 审批驳回 |
+| `companies` | 查询公司列表 |
+| `employee-create` | 创建员工 |
+| `departments` | 查询部门 |
+
+## 状态枚举（用于 reports 过滤）
+
+报销单状态 `status`：
+- `1001` 编辑中/已撤回/已驳回/审核驳回
+- `1002` 审批中
+- `1003` 待审核
+- `1004` 审核通过
+- `1005` 已付款/流程结束
+- `1007` 待付款
+- `1008` 付款中
+- `1015` 取消支付
+
+收单状态 `receiveStatus`：
+- `0` 未收单
+- `1` 已收单
+- `2` 已退单
+- `3` 待退单
+
+寄单状态 `sendBillStatus`：
+- `0` 未寄单
+- `1` 已寄单
+- `2` 已退单
+- `3` 待退单
+
+## 输出格式
+
+所有操作返回统一的 JSON 格式：
+
+```json
+{
+  "action": "detail",
+  "ok": true,
+  "summary": {
+    "businessCode": "ER51184982",
+    "status": 1001,
+    "applicant": "xxxx",
+    "amount": 1200,
+    "currency": "CNY"
+  },
+  "raw": { ... }
+}
+```
+
+错误时：
+
+```json
+{
+  "code": 120913,
+  "error": "当前报销单状态无法审核",
+  "msg": "...",
+  "tip": "..."
+}
+```
+
+## License
+
+MIT

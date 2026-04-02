@@ -1,3 +1,0 @@
-display_name: HLY Expense Ops
-short_description: High-level CLI wrapper for HLY expense operations
-default_prompt: Query and operate HLY expense data through simple actions like detail, reports, create, audit-pass, audit-reject, companies, employee-create, and departments.

@@ -93,6 +93,16 @@ function buildInput(action, args) {
     };
   }
 
+  if (action === "reports") {
+    if (!payload.statusList || payload.statusList.length === 0) {
+      return {
+        ...payload,
+        statusList: [1003],
+      };
+    }
+    return payload;
+  }
+
   if (action === "normalize-detail") {
     return payload;
   }
@@ -128,7 +138,7 @@ function buildTip(action) {
   const tips = {
     detail: "Pass --business-code BX123 or use --payload '{\"businessCode\":\"BX123\"}'.",
     reports:
-      "Use --payload with statusList, lastModifyStartDate, and lastModifyEndDate.",
+      "Use --payload with statusList, lastModifyStartDate, and lastModifyEndDate. Defaults to statusList [1003] if omitted.",
     create: "Use --payload with at least employeeId and formCode.",
     "audit-pass":
       "Use --payload with businessCode, companyOID or companyCode, approvalTxt, and operator.",

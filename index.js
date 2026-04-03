@@ -1,11 +1,8 @@
-import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRuntime } from "./lib/runtime.js";
 import { runAction } from "./lib/actions.js";
 import { buildInput, buildTip, parseArgs, validateInput } from "./src/cli-input.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const HELP_TEXT = `hly-expense-ops
 
@@ -20,6 +17,7 @@ Actions:
   audit-reject      Audit-reject an expense report
   invoice-reject    Reject expense report invoices
   approvals-pass    Generic approvals pass
+  approvals-reject  Generic approvals reject
   companies         Query tenant companies
   employee-create   Create employee v2
   departments       Query departments

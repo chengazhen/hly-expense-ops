@@ -7,6 +7,7 @@ const DEFAULTS = {
   expenseAuditRejectPath: "/api/open/expenseReport/audit/reject",
   expenseInvoiceRejectPath: "/api/open/expenseReport/reject/invoice",
   approvalsPassPath: "/api/open/approvals/pass",
+  approvalsRejectPath: "/api/open/approvals/reject",
   companyByTenantPath: "/api/open/company/tenant/all",
   employeeCreateV2Path: "/api/open/user/create/v2",
   departmentSelectPath: "/api/open/department",
@@ -59,6 +60,8 @@ export function loadConfig() {
       DEFAULTS.expenseInvoiceRejectPath,
     hlyApprovalsPassPath:
       process.env.HLY_APPROVALS_PASS_PATH?.trim() || DEFAULTS.approvalsPassPath,
+    hlyApprovalsRejectPath:
+      process.env.HLY_APPROVALS_REJECT_PATH?.trim() || DEFAULTS.approvalsRejectPath,
     hlyCompanyByTenantPath:
       process.env.HLY_COMPANY_BY_TENANT_PATH?.trim() || DEFAULTS.companyByTenantPath,
     hlyEmployeeCreateV2Path:

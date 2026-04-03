@@ -23,12 +23,15 @@
 - `payload` 必须是 JSON 对象。
 - `detail` 需要 `businessCode`。
 - `reports` 默认自动补 `statusList: [1003]`（待审核）。
+- `reports` 必须提供 `lastModifyStartDate` 与 `lastModifyEndDate`。
 - `audit-pass` / `audit-reject` 必须提供 `businessCode`，并且 **二选一**：
 `companyOID` 或 `companyCode`。
 - `invoice-reject` 必须提供 `businessCode`、`expenseCodeSet`、`operatorEmployeeId`、
 `operationType`（可选 `rejectReason`、`rejectType`）。
-- `approvals-pass` 必须提供 `businessCode`、`entityType`、`operator`
-（可选 `approvalTxt`、`operationDate`）。
+- `approvals-pass` 必须提供 `businessCode`、`entityType`、`operator`、`approver`
+（可选 `approvalTxt`、`operationDate`、`ignoreHistory`）。
+- `approvals-reject` 必须提供 `businessCode`、`entityType`、`operator`、`approver`、`approvalTxt`
+（可选 `rejectType`、`operationDate`、`ignoreHistory`）。
 
 ### 审批动作对比（避免混淆）
 
@@ -101,8 +104,24 @@
   "businessCode": "ER51184982",
   "entityType": 1002,
   "operator": "RH9999",
+  "approver": "RH9999",
   "approvalTxt": "OK",
-  "operationDate": "2026-04-03 10:00:00"
+  "operationDate": "2026-04-03 10:00:00",
+  "ignoreHistory": false
+}
+```
+
+审批驳回（approvals-reject）：
+```json
+{
+  "businessCode": "ER51184982",
+  "entityType": 1002,
+  "operator": "RH9999",
+  "approver": "RH9999",
+  "approvalTxt": "Reject reason",
+  "rejectType": 1,
+  "operationDate": "2026-04-03 10:00:00",
+  "ignoreHistory": false
 }
 ```
 
@@ -117,6 +136,7 @@
 | `audit-reject` | 审批驳回 |
 | `invoice-reject` | 发票驳回 |
 | `approvals-pass` | 审批通过（通用） |
+| `approvals-reject` | 审批驳回（通用） |
 | `companies` | 查询公司列表 |
 | `employee-create` | 创建员工 |
 | `departments` | 查询部门 |
@@ -172,6 +192,23 @@
   "error": "当前报销单状态无法审核",
   "msg": "...",
   "tip": "..."
+}
+```
+
+审批类接口（`approvals-pass` / `approvals-reject`）会根据 `errorCode` 追加：
+
+```json
+{
+  "errorCode": "121931",
+  "errorHint": "approver 不能为空"
+}
+```
+
+当 `errorCode` 为 `121935`（业务异常）时，会额外输出：
+
+```json
+{
+  "errorDetail": "具体业务异常信息"
 }
 ```
 

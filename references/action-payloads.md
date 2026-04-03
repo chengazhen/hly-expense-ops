@@ -115,13 +115,34 @@ Notes:
   "businessCode": "BX20250401001",
   "entityType": 1002,
   "operator": "RH9999",
+  "approver": "RH9999",
   "approvalTxt": "OK",
-  "operationDate": "2026-04-03 10:00:00"
+  "operationDate": "2026-04-03 10:00:00",
+  "ignoreHistory": false
 }
 ```
 
 Notes:
 - `entityType` is required by the approvals API and depends on the business object type.
+
+## approvals-reject
+
+```json
+{
+  "businessCode": "BX20250401001",
+  "entityType": 1002,
+  "operator": "RH9999",
+  "approver": "RH9999",
+  "approvalTxt": "Reject reason",
+  "rejectType": 1,
+  "operationDate": "2026-04-03 10:00:00",
+  "ignoreHistory": false
+}
+```
+
+Notes:
+- `entityType` is required by the approvals API and depends on the business object type.
+- `rejectType`: `1` reject to draft, `2` reject to applicant.
 
 ## companies
 

@@ -77,6 +77,15 @@ function validateInput(action, input) {
     throw new Error("detail requires --business-code or payload.businessCode");
   }
 
+  if (action === "reports") {
+    if (!input.lastModifyStartDate) {
+      throw new Error("reports requires payload.lastModifyStartDate");
+    }
+    if (!input.lastModifyEndDate) {
+      throw new Error("reports requires payload.lastModifyEndDate");
+    }
+  }
+
   if (
     [
       "reports",
@@ -85,6 +94,7 @@ function validateInput(action, input) {
       "audit-reject",
       "invoice-reject",
       "approvals-pass",
+      "approvals-reject",
       "employee-create",
       "departments",
     ].includes(action) &&
@@ -138,6 +148,27 @@ function validateInput(action, input) {
     if (!input.operator) {
       throw new Error("approvals-pass requires payload.operator");
     }
+    if (!input.approver) {
+      throw new Error("approvals-pass requires payload.approver");
+    }
+  }
+
+  if (action === "approvals-reject") {
+    if (!input.businessCode) {
+      throw new Error("approvals-reject requires payload.businessCode");
+    }
+    if (!input.entityType) {
+      throw new Error("approvals-reject requires payload.entityType");
+    }
+    if (!input.operator) {
+      throw new Error("approvals-reject requires payload.operator");
+    }
+    if (!input.approver) {
+      throw new Error("approvals-reject requires payload.approver");
+    }
+    if (!input.approvalTxt) {
+      throw new Error("approvals-reject requires payload.approvalTxt");
+    }
   }
 }
 
@@ -154,7 +185,9 @@ function buildTip(action) {
     "invoice-reject":
       "Use --payload with businessCode, expenseCodeSet(max 50), operatorEmployeeId, operationType(APPROVAL_INVOICE_REJECT|AUDIT_INVOICE_REJECT), and optional rejectReason/rejectType(1|2).",
     "approvals-pass":
-      "Use --payload with businessCode, entityType, operator, and optional approvalTxt/operationDate. (Generic approvals)",
+      "Use --payload with businessCode, entityType, operator, approver, and optional approvalTxt/operationDate/ignoreHistory. (Generic approvals)",
+    "approvals-reject":
+      "Use --payload with businessCode, entityType, operator, approver, approvalTxt, and optional rejectType/operationDate/ignoreHistory. (Generic approvals)",
     companies: "You can omit payload and use --page / --size.",
     "employee-create":
       "Use --payload with custDeptNumber, fullName, employeeID, and email.",

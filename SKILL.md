@@ -13,11 +13,20 @@ Use this skill when working with HuiLianYi expense APIs through a simple local C
 - Query expense reports v2
 - Create an expense report
 - Audit-pass or audit-reject an expense report
+- Generic approvals pass (requires approver in approval chain)
+- Generic approvals reject (requires approver in approval chain)
 - Query tenant companies
 - Create an employee with the v2 API
 - Query departments by time range
 
 ## Prerequisites
+
+Approval rule:
+- Default approval action uses `approvals-pass` (generic approvals).
+- Use `audit-pass` only when the user explicitly says it is an expense report approval and provides `companyOID`/`companyCode`.
+- For rejection, default to `approvals-reject` unless the user explicitly asks for invoice rejection (`invoice-reject`) or expense report rejection (`audit-reject`).
+
+- Before using this skill, check whether Bun is installed. If Bun is missing, guide the user to install Bun first.
 
 - Set these environment variables before use:
   - `HLY_BASE_URL`
@@ -41,6 +50,12 @@ bun index.js --action create --payload '{"employeeId":"E001","formCode":"FORM01"
 
 # Audit pass
 bun index.js --action audit-pass --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","approvalTxt":"approved","operator":"system"}'
+
+# Generic approvals pass
+bun index.js --action approvals-pass --payload '{"businessCode":"BX20250401001","entityType":1002,"operator":"RH9999","approver":"RH9999","approvalTxt":"OK"}'
+
+# Generic approvals reject
+bun index.js --action approvals-reject --payload '{"businessCode":"BX20250401001","entityType":1002,"operator":"RH9999","approver":"RH9999","approvalTxt":"Reject reason","rejectType":1}'
 ```
 
 For a self-contained distributable runtime, build:
@@ -62,6 +77,8 @@ bun dist/hly-expense-ops.bundle.cjs --help
 - `create`: create an expense report
 - `audit-pass`: approve an expense report
 - `audit-reject`: reject an expense report
+- `approvals-pass`: generic approvals pass (requires `approver`)
+- `approvals-reject`: generic approvals reject (requires `approver`, `approvalTxt`)
 - `companies`: query tenant companies
 - `employee-create`: create employee v2
 - `departments`: select departments by date range
@@ -77,5 +94,9 @@ bun dist/hly-expense-ops.bundle.cjs --help
 - Prefer `--payload '<json>'` for complex actions
 - The wrapper returns stable JSON for every action
 - Errors are normalized into `{ code, error, msg, tip }`
+- For approvals actions (`approvals-pass`, `approvals-reject`), `errorCode` is mapped to a human-friendly `errorHint` when available.
+- If `errorCode` is `121935`, the response includes `errorDetail` with the business exception message.
+- When `errorCode` is `121935`, analyze `errorDetail` and summarize the likely business cause and the exact field/parameter to fix in plain language.
+- When `errorCode` is `121935`, analyze `errorDetail` and summarize the specific business exception for the user in plain language.
 - See [references/action-payloads.md](references/action-payloads.md) for ready-to-use payload examples
 - The bundled runtime in `dist/hly-expense-ops.bundle.cjs` is the recommended artifact for copying into `.agents/skills`

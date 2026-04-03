@@ -35,39 +35,27 @@ Approval rule:
 
 ## Usage
 
+> ⚠️ For any write action, first echo the payload and ask the user to confirm before executing.
+
+### Read-only
+
 ```bash
-# Show help
-bun index.js --help
-
-# Expense detail
 bun index.js --action detail --business-code BX20250401001
-
-# Expense reports v2
 bun index.js --action reports --payload '{"statusList":[1001],"lastModifyStartDate":"2025-01-01 00:00:00","lastModifyEndDate":"2025-01-31 23:59:59"}'
+bun index.js --action companies
+bun index.js --action departments --payload '{"startDate":"2025-01-01 00:00:00","endDate":"2025-01-31 23:59:59"}'
+```
 
-# Create expense report
+### Write (confirm before run)
+
+```bash
 bun index.js --action create --payload '{"employeeId":"E001","formCode":"FORM01"}'
 
-# Audit pass
-bun index.js --action audit-pass --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","approvalTxt":"approved","operator":"system"}'
+bun index.js --action audit-pass --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","companyCode":"your-company-code","approvalTxt":"approved","operator":"system"}'
 
-# Generic approvals pass
 bun index.js --action approvals-pass --payload '{"businessCode":"BX20250401001","entityType":1002,"operator":"RH9999","approver":"RH9999","approvalTxt":"OK"}'
 
-# Generic approvals reject
 bun index.js --action approvals-reject --payload '{"businessCode":"BX20250401001","entityType":1002,"operator":"RH9999","approver":"RH9999","approvalTxt":"Reject reason","rejectType":1}'
-```
-
-For a self-contained distributable runtime, build:
-
-```bash
-bun scripts/build-bundle.mjs
-```
-
-Then use:
-
-```bash
-bun dist/hly-expense-ops.bundle.cjs --help
 ```
 
 ## Action Map

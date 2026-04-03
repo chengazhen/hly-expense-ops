@@ -90,6 +90,39 @@ Send bill enums (sendBillStatus):
 }
 ```
 
+## invoice-reject
+
+```json
+{
+  "businessCode": "BX20250401001",
+  "expenseCodeSet": ["EXP001", "EXP002"],
+  "rejectReason": "invoice mismatch",
+  "rejectType": "1",
+  "operatorEmployeeId": "EMP001",
+  "operationType": "APPROVAL_INVOICE_REJECT"
+}
+```
+
+Notes:
+- `expenseCodeSet` max size: 50
+- `operationType`: `APPROVAL_INVOICE_REJECT` or `AUDIT_INVOICE_REJECT`
+- `rejectType`: `1` replace, `2` remove (only applies to approval flow)
+
+## approvals-pass
+
+```json
+{
+  "businessCode": "BX20250401001",
+  "entityType": 1002,
+  "operator": "RH9999",
+  "approvalTxt": "OK",
+  "operationDate": "2026-04-03 10:00:00"
+}
+```
+
+Notes:
+- `entityType` is required by the approvals API and depends on the business object type.
+
 ## companies
 
 Simple flags:

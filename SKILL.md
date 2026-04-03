@@ -28,31 +28,31 @@ Use this skill when working with HuiLianYi expense APIs through a simple local C
 
 ```bash
 # Show help
-node index.js --help
+bun index.js --help
 
 # Expense detail
-node index.js --action detail --business-code BX20250401001
+bun index.js --action detail --business-code BX20250401001
 
 # Expense reports v2
-node index.js --action reports --payload '{"statusList":[1001],"lastModifyStartDate":"2025-01-01 00:00:00","lastModifyEndDate":"2025-01-31 23:59:59"}'
+bun index.js --action reports --payload '{"statusList":[1001],"lastModifyStartDate":"2025-01-01 00:00:00","lastModifyEndDate":"2025-01-31 23:59:59"}'
 
 # Create expense report
-node index.js --action create --payload '{"employeeId":"E001","formCode":"FORM01"}'
+bun index.js --action create --payload '{"employeeId":"E001","formCode":"FORM01"}'
 
 # Audit pass
-node index.js --action audit-pass --payload '{"businessCode":"BX20250401001","approvalTxt":"approved","operator":"system"}'
+bun index.js --action audit-pass --payload '{"businessCode":"BX20250401001","companyOID":"your-company-oid","approvalTxt":"approved","operator":"system"}'
 ```
 
 For a self-contained distributable runtime, build:
 
 ```bash
-node scripts/build-bundle.mjs
+bun scripts/build-bundle.mjs
 ```
 
 Then use:
 
 ```bash
-node dist/hly-expense-ops.bundle.cjs --help
+bun dist/hly-expense-ops.bundle.cjs --help
 ```
 
 ## Action Map

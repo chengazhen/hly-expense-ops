@@ -7,20 +7,13 @@
   "bin": {
     "hly-expense-ops": "index.js"
   },
-  "dependencies": {
-    "dotenv": "^16.6.1",
-    "undici": "^7.13.0"
-  },
-  "devDependencies": {
-    "esbuild": "^0.27.5"
-  },
+  "dependencies": {},
   "scripts": {
-    "start": "node index.js",
-    "check": "node index.js --help",
-    "build": "node scripts/build-bundle.mjs",
-    "test": "node --test"
+    "start": "bun index.js",
+    "check": "bun index.js --help",
+    "test": "bun test"
   },
   "engines": {
-    "node": "^20.0.0 || ^22.0.0"
+    "bun": ">=1.0.0"
   }
 }

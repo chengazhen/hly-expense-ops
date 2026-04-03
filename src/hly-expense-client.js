@@ -199,6 +199,74 @@ export class HlyExpenseClient {
     }
   }
 
+  async rejectExpenseReportInvoice(payload) {
+    let token = await this.authClient.getAccessToken();
+
+    try {
+      return await this.httpClient.request({
+        baseUrl: this.config.hlyBaseUrl,
+        path: this.config.hlyExpenseInvoiceRejectPath,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload ?? {}),
+      });
+    } catch (error) {
+      if (error instanceof HttpRequestError && error.status === 401) {
+        token = await this.authClient.getAccessToken(true);
+        return this.httpClient.request({
+          baseUrl: this.config.hlyBaseUrl,
+          path: this.config.hlyExpenseInvoiceRejectPath,
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload ?? {}),
+        });
+      }
+      throw error;
+    }
+  }
+
+  async approvalsPass(payload) {
+    let token = await this.authClient.getAccessToken();
+
+    try {
+      return await this.httpClient.request({
+        baseUrl: this.config.hlyBaseUrl,
+        path: this.config.hlyApprovalsPassPath,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload ?? {}),
+      });
+    } catch (error) {
+      if (error instanceof HttpRequestError && error.status === 401) {
+        token = await this.authClient.getAccessToken(true);
+        return this.httpClient.request({
+          baseUrl: this.config.hlyBaseUrl,
+          path: this.config.hlyApprovalsPassPath,
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload ?? {}),
+        });
+      }
+      throw error;
+    }
+  }
+
   async createEmployeeV2(payload) {
     let token = await this.authClient.getAccessToken();
 

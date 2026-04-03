@@ -1,26 +1,36 @@
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import test from "node:test";
-import assert from "node:assert/strict";
+import { test, expect } from "bun:test";
+import { buildInput } from "../src/cli-input.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 function runCli(args) {
-  const output = execFileSync(process.execPath, ["index.js", ...args], {
+  const bunPath = process.argv[0] || "bun";
+  const result = Bun.spawnSync({
+    cmd: [bunPath, "index.js", ...args],
     cwd: projectRoot,
-    encoding: "utf8",
+    stdout: "pipe",
+    stderr: "pipe",
   });
-  return output.trim();
+  if (result.exitCode !== 0) {
+    throw new Error(result.stderr.toString() || "CLI failed");
+  }
+  return result.stdout.toString().trim();
 }
 
 test("normalize-detail works without live API", () => {
   const output = runCli(["--action", "normalize-detail", "--payload", "{}"]);
   const parsed = JSON.parse(output);
 
-  assert.equal(parsed.action, "normalize-detail");
-  assert.equal(parsed.ok, true);
-  assert.ok(parsed.normalized);
+  expect(parsed.action).toBe("normalize-detail");
+  expect(parsed.ok).toBe(true);
+  expect(parsed.normalized).toBeTruthy();
+});
+
+test("reports defaults statusList to pending review", () => {
+  const input = buildInput("reports", { payload: "{}" });
+  expect(input.statusList).toEqual([1003]);
 });

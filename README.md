@@ -2,6 +2,11 @@
 
 汇联易费用报销的 **Skill 库**。提供稳定的输入/输出契约、默认规则与兜底策略，便于被 Agent 或自动化系统直接调用。
 
+运行环境说明（Bun）：
+- Bun 默认自动加载项目根目录的 `.env` 文件
+- 若需要手动指定，可用 `bun --env-file <path>`
+- 若要禁用 `.env` 自动加载，可用 `bun --no-env-file`
+
 ## 功能特性
 
 - **单据查询** — 查询单条审批单详情（支持缓存）
@@ -20,6 +25,17 @@
 - `reports` 默认自动补 `statusList: [1003]`（待审核）。
 - `audit-pass` / `audit-reject` 必须提供 `businessCode`，并且 **二选一**：
 `companyOID` 或 `companyCode`。
+- `invoice-reject` 必须提供 `businessCode`、`expenseCodeSet`、`operatorEmployeeId`、
+`operationType`（可选 `rejectReason`、`rejectType`）。
+- `approvals-pass` 必须提供 `businessCode`、`entityType`、`operator`
+（可选 `approvalTxt`、`operationDate`）。
+
+### 审批动作对比（避免混淆）
+
+| Action | 中文说明 | 适用范围 | 必填字段 |
+|--------|----------|----------|----------|
+| `audit-pass` | 报销单审批通过 | 报销单专用 | `businessCode` + `companyOID/companyCode` |
+| `approvals-pass` | 通用审批通过 | 通用审批对象 | `businessCode` + `entityType` + `operator` |
 
 ### companyOID 自动回填逻辑
 
@@ -67,6 +83,29 @@
 }
 ```
 
+发票驳回（invoice-reject）：
+```json
+{
+  "businessCode": "ER51184982",
+  "expenseCodeSet": ["EXP001", "EXP002"],
+  "operatorEmployeeId": "EMP001",
+  "operationType": "APPROVAL_INVOICE_REJECT",
+  "rejectReason": "invoice mismatch",
+  "rejectType": "1"
+}
+```
+
+审批通过（approvals-pass）：
+```json
+{
+  "businessCode": "ER51184982",
+  "entityType": 1002,
+  "operator": "RH9999",
+  "approvalTxt": "OK",
+  "operationDate": "2026-04-03 10:00:00"
+}
+```
+
 ## Action 列表
 
 | Action | 说明 |
@@ -76,6 +115,8 @@
 | `create` | 创建审批单 |
 | `audit-pass` | 审批通过 |
 | `audit-reject` | 审批驳回 |
+| `invoice-reject` | 发票驳回 |
+| `approvals-pass` | 审批通过（通用） |
 | `companies` | 查询公司列表 |
 | `employee-create` | 创建员工 |
 | `departments` | 查询部门 |
